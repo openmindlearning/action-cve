@@ -1,5 +1,10 @@
 import { Alert, toAlert } from './entities'
-import { Repository } from '@octokit/graphql-schema'
+import {
+  Maybe,
+  Repository,
+  RepositoryVulnerabilityAlertEdge,
+  SecurityAdvisorySeverity,
+} from '@octokit/graphql-schema'
 import { getOctokit } from '@actions/github'
 
 export const fetchAlerts = async (
@@ -7,6 +12,7 @@ export const fetchAlerts = async (
   repositoryName: string,
   repositoryOwner: string,
   count: number,
+  targetSeverity: Maybe<SecurityAdvisorySeverity>,
 ): Promise<Alert[] | []> => {
   const octokit = getOctokit(gitHubPersonalAccessToken)
   const { repository } = await octokit.graphql<{
@@ -57,16 +63,32 @@ export const fetchAlerts = async (
         }
       }
     }
-  `)
-  const gitHubAlerts = repository.vulnerabilityAlerts?.edges
-  if (gitHubAlerts) {
-    const alerts: Alert[] = []
-    for (const gitHubAlert of gitHubAlerts) {
-      if (gitHubAlert && gitHubAlert.node) {
-        alerts.push(toAlert(gitHubAlert.node))
+  `);
+  return buildAlerts(targetSeverity, repository.vulnerabilityAlerts?.edges);
+}
+
+
+export const buildAlerts = (
+  targetSeverity: Maybe<SecurityAdvisorySeverity>,
+  githubAlerts?: Maybe<Array<Maybe<RepositoryVulnerabilityAlertEdge>>>,
+): Array<Alert> => {
+  /*
+  * Returns a list of Alerts that match the target severity.
+  * If no severity is supplied, then this will filter out no alerts.
+  */
+
+  if (!githubAlerts) {
+    return [];
+  }
+
+  const alerts: Array<Alert> = [];
+  for (const alert of githubAlerts) {
+    if (alert && alert.node) {
+      const alertSeverity = alert.node.securityVulnerability?.severity;
+      if (!targetSeverity || targetSeverity === alertSeverity) {
+        alerts.push(toAlert(alert.node));
       }
     }
-    return alerts
   }
-  return []
+  return alerts;
 }

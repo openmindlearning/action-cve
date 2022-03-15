@@ -1,4 +1,4 @@
-import { request } from '.'
+import { request } from '../src/utils/request'
 import fetch from 'node-fetch'
 
 jest.mock('node-fetch')
