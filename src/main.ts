@@ -28,7 +28,7 @@ async function run(): Promise<void> {
       repo,
       owner,
       count,
-      targetSeverity ? targetSeverity as SecurityAdvisorySeverity : null
+      targetSeverity ? targetSeverity.split(',') as Array<SecurityAdvisorySeverity> : []
     );
     if (alerts.length > 0) {
       if (microsoftTeamsWebhookUrl) {

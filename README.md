@@ -27,7 +27,7 @@ jobs:
         with:
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           count: 10
-          target_severity: "CRITICAL"
+          target_severity: CRITICAL,HIGH
           slack_webhook: ${{ secrets.SLACK_WEBHOOK }}
           pager_duty_integration_key: ${{ secrets.PAGER_DUTY_INTEGRATION_KEY }}
           zenduty_api_key: ${{ secrets.ZENDUTY_API_KEY }}
@@ -37,16 +37,16 @@ jobs:
 
 ## Action Inputs
 
-| Input                          | Description                                                                                    |
-|--------------------------------|------------------------------------------------------------------------------------------------|
-| `token`                        | [Required] Github Personal Access Token. Create one [here](https://github.com/settings/tokens) |
-| `count`                        | Limit of alerts pulled from Github. Defaults to 20                                             |
-| `target_severity`              | Filter alerts by severity (accepts: "CRITICAL", "HIGH", "MODERATE", "LOW")                     |
-| `slack_webhook`                | [Slack Incoming Webhook URL]                                                                   |
-| `pager_duty_integration_key`   | Pager Duty [Service Integration Key]. Also known as Routing key.                               |
-| `zenduty_api_key`              | Create a Zenduty API Key by visiting Account Settings > API Keys                               |
-| `zenduty_service_id`           | Zenduty Service ID:  https://docs.zenduty.com/docs/services                                    |
-| `zenduty_escalation_policy_id` | Zenduty Escalation Policy ID:  https://docs.zenduty.com/docs/escalationpolicies                |
+| Input                          | Description                                                                                        |
+|--------------------------------|----------------------------------------------------------------------------------------------------|
+| `token`                        | [Required] Github Personal Access Token. Create one [here](https://github.com/settings/tokens)     |
+| `count`                        | Limit of alerts pulled from Github. Defaults to 20                                                 |
+| `target_severity`              | Comma separated list to filter alerts by severity (accepts: "CRITICAL", "HIGH", "MODERATE", "LOW") |
+| `slack_webhook`                | [Slack Incoming Webhook URL]                                                                       |
+| `pager_duty_integration_key`   | Pager Duty [Service Integration Key]. Also known as Routing key.                                   |
+| `zenduty_api_key`              | Create a Zenduty API Key by visiting Account Settings > API Keys                                   |
+| `zenduty_service_id`           | Zenduty Service ID:  https://docs.zenduty.com/docs/services                                        |
+| `zenduty_escalation_policy_id` | Zenduty Escalation Policy ID:  https://docs.zenduty.com/docs/escalationpolicies                    |
 
 
 ### Github Token Requirements

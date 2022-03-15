@@ -62,13 +62,13 @@ const testVulnerabilityAlerts: Maybe<Array<Maybe<RepositoryVulnerabilityAlertEdg
 ];
 
 test('buildAlerts - no alerts', () => {
-  const targetSeverity = null;
+  const targetSeverity: Array<SecurityAdvisorySeverity> = [];
   const actual = buildAlerts(targetSeverity, []);
   expect(actual.length).toEqual(0);
 });
 
-test('buildAlerts - no alerts filtered out when targetSeverity is null', () => {
-  const targetSeverity = null;
+test('buildAlerts - no alerts filtered out when targetSeverity is empty', () => {
+  const targetSeverity: Array<SecurityAdvisorySeverity> = [];
   const actual = buildAlerts(targetSeverity, testVulnerabilityAlerts);
   expect(actual.length).toEqual(testVulnerabilityAlerts.length);
 
@@ -77,7 +77,7 @@ test('buildAlerts - no alerts filtered out when targetSeverity is null', () => {
 });
 
 test('buildAlerts - alerts filtered out when targetSeverity is set', () => {
-  const targetSeverity = "CRITICAL";
+  const targetSeverity: Array<SecurityAdvisorySeverity> = ["CRITICAL"];
   const actual = buildAlerts(targetSeverity, testVulnerabilityAlerts);
   expect(actual.length).toEqual(1);
 
@@ -85,12 +85,28 @@ test('buildAlerts - alerts filtered out when targetSeverity is set', () => {
   expect(actual.map((alert) => alert.packageName)).toEqual(expected);
 });
 
+test('buildAlerts - alerts filtered when multiple targetSeverity defined', () => {
+  const testVulnerabilityAlerts = [
+    {node: createSecVulnNode("1", "CRITICAL"), cursor: ""},
+    {node: createSecVulnNode("2", "LOW"), cursor: ""},
+    {node: createSecVulnNode("3", "HIGH"), cursor: ""},
+    {node: createSecVulnNode("4", "CRITICAL"), cursor: ""},
+  ];
+  const targetSeverity: Array<SecurityAdvisorySeverity> = ["CRITICAL", "HIGH"];
+  const actual = buildAlerts(targetSeverity, testVulnerabilityAlerts);
+  expect(actual.length).toEqual(3);
+
+  const expected = ["1-CRITICAL", "3-HIGH", "4-CRITICAL"];
+  expect(actual.map((alert) => alert.packageName)).toEqual(expected);
+});
+
+
 test('buildAlerts - all alerts filtered out when targetSeverity matches nothing', () => {
   const testVulnerabilityAlerts = [
     {node: createSecVulnNode("1", "CRITICAL"), cursor: ""},
     {node: createSecVulnNode("2", "LOW"), cursor: ""},
   ];
-  const targetSeverity = "MODERATE";
+  const targetSeverity: Array<SecurityAdvisorySeverity> = ["MODERATE"];
   const actual = buildAlerts(targetSeverity, testVulnerabilityAlerts);
   expect(actual.length).toEqual(0);
 });
@@ -101,7 +117,7 @@ test('buildAlerts - empty alerts filtered out', () => {
     {node: createSecVulnNode("1", "CRITICAL"), cursor: ""},
     {node: createSecVulnNode("2", "LOW"), cursor: ""},
   ];
-  const targetSeverity = null;
+  const targetSeverity: Array<SecurityAdvisorySeverity> = [];
   const actual = buildAlerts(targetSeverity, testVulnerabilityAlerts);
   expect(actual.length).toEqual(2);
 

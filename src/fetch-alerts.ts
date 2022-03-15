@@ -12,7 +12,7 @@ export const fetchAlerts = async (
   repositoryName: string,
   repositoryOwner: string,
   count: number,
-  targetSeverity: Maybe<SecurityAdvisorySeverity>,
+  targetSeverity: Array<SecurityAdvisorySeverity>,
 ): Promise<Alert[] | []> => {
   const octokit = getOctokit(gitHubPersonalAccessToken)
   const { repository } = await octokit.graphql<{
@@ -69,7 +69,7 @@ export const fetchAlerts = async (
 
 
 export const buildAlerts = (
-  targetSeverity: Maybe<SecurityAdvisorySeverity>,
+  targetSeverity: Array<SecurityAdvisorySeverity>,
   githubAlerts?: Maybe<Array<Maybe<RepositoryVulnerabilityAlertEdge>>>,
 ): Array<Alert> => {
   /*
@@ -85,7 +85,7 @@ export const buildAlerts = (
   for (const alert of githubAlerts) {
     if (alert && alert.node) {
       const alertSeverity = alert.node.securityVulnerability?.severity;
-      if (!targetSeverity || targetSeverity === alertSeverity) {
+      if (targetSeverity.length === 0 || (alertSeverity && targetSeverity.includes(alertSeverity))) {
         alerts.push(toAlert(alert.node));
       }
     }
