@@ -436,16 +436,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.fetchAlerts = void 0;
+exports.buildAlerts = exports.fetchAlerts = void 0;
 const entities_1 = __nccwpck_require__(7604);
 const github_1 = __nccwpck_require__(5438);
-const fetchAlerts = (gitHubPersonalAccessToken, repositoryName, repositoryOwner, count) => __awaiter(void 0, void 0, void 0, function* () {
+const fetchAlerts = (gitHubPersonalAccessToken, repositoryName, repositoryOwner, count, targetSeverity) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const octokit = (0, github_1.getOctokit)(gitHubPersonalAccessToken);
     const { repository } = yield octokit.graphql(`
     query {
       repository(owner:"${repositoryOwner}" name:"${repositoryName}") {
-        vulnerabilityAlerts(last: ${count}) {
+        vulnerabilityAlerts(last: ${count}, states: OPEN) {
           edges {
             node {
               id
@@ -489,19 +489,30 @@ const fetchAlerts = (gitHubPersonalAccessToken, repositoryName, repositoryOwner,
       }
     }
   `);
-    const gitHubAlerts = (_a = repository.vulnerabilityAlerts) === null || _a === void 0 ? void 0 : _a.edges;
-    if (gitHubAlerts) {
-        const alerts = [];
-        for (const gitHubAlert of gitHubAlerts) {
-            if (gitHubAlert && gitHubAlert.node) {
-                alerts.push((0, entities_1.toAlert)(gitHubAlert.node));
-            }
-        }
-        return alerts;
-    }
-    return [];
+    return (0, exports.buildAlerts)(targetSeverity, (_a = repository.vulnerabilityAlerts) === null || _a === void 0 ? void 0 : _a.edges);
 });
 exports.fetchAlerts = fetchAlerts;
+const buildAlerts = (targetSeverity, githubAlerts) => {
+    /*
+    * Returns a list of Alerts that match the target severity.
+    * If no severity is supplied, then this will filter out no alerts.
+    */
+    var _a;
+    if (!githubAlerts) {
+        return [];
+    }
+    const alerts = [];
+    for (const alert of githubAlerts) {
+        if (alert && alert.node) {
+            const alertSeverity = (_a = alert.node.securityVulnerability) === null || _a === void 0 ? void 0 : _a.severity;
+            if (targetSeverity.length === 0 || (alertSeverity && targetSeverity.includes(alertSeverity))) {
+                alerts.push((0, entities_1.toAlert)(alert.node));
+            }
+        }
+    }
+    return alerts;
+};
+exports.buildAlerts = buildAlerts;
 
 
 /***/ }),
@@ -536,9 +547,10 @@ function run() {
             const zenDutyServiceId = (0, core_1.getInput)('zenduty_service_id');
             const zenDutyEscalationPolicyId = (0, core_1.getInput)('zenduty_escalation_policy_id');
             const count = parseInt((0, core_1.getInput)('count'));
+            const targetSeverity = (0, core_1.getInput)('target_severity');
             const owner = github_1.context.repo.owner;
             const repo = github_1.context.repo.repo;
-            const alerts = yield (0, fetch_alerts_1.fetchAlerts)(token, repo, owner, count);
+            const alerts = yield (0, fetch_alerts_1.fetchAlerts)(token, repo, owner, count, targetSeverity ? targetSeverity.split(',') : []);
             if (alerts.length > 0) {
                 if (microsoftTeamsWebhookUrl) {
                     yield (0, destinations_1.sendAlertsToMicrosoftTeams)(microsoftTeamsWebhookUrl, alerts);
