@@ -468,6 +468,7 @@ const fetchAlerts = (gitHubPersonalAccessToken, repositoryName, repositoryOwner,
                 summary
               }
               securityVulnerability {
+                severity
                 firstPatchedVersion {
                   identifier
                 }
