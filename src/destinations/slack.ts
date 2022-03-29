@@ -78,4 +78,5 @@ export const sendAlertsToSlack = async (
     icon_url: ACTION_ICON,
     username: ACTION_SHORT_SUMMARY,
   })
+  console.log('Alert sent to Slack');
 }

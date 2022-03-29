@@ -85,10 +85,14 @@ export const buildAlerts = (
   for (const alert of githubAlerts) {
     if (alert && alert.node) {
       const alertSeverity = alert.node.securityVulnerability?.severity;
-      if (targetSeverity.length === 0 || (alertSeverity && targetSeverity.includes(alertSeverity))) {
+      if (
+        targetSeverity.length === 0
+        || (alertSeverity && targetSeverity.includes(alertSeverity))
+      ) {
         alerts.push(toAlert(alert.node));
       }
     }
   }
+  console.log(`Captured ${alerts.length} Dependabot alert(s)`);
   return alerts;
 }
