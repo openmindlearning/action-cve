@@ -4,6 +4,8 @@ author: '@kunalnagar'
 inputs:
   token:
     description: 'GitHub Personal Access Token'
+  target_severity:
+    description: 'Comma separated list to filter alerts by severity (accepts: "CRITICAL", "HIGH", "MODERATE", "LOW")'
   microsoft_teams_webhook:
     description: 'Microsoft Teams Channel Webhook URL. More info: https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook'
   slack_webhook:
