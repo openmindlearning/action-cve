@@ -42,6 +42,7 @@ export const fetchAlerts = async (
                 summary
               }
               securityVulnerability {
+                severity
                 firstPatchedVersion {
                   identifier
                 }
