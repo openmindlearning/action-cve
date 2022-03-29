@@ -241,6 +241,7 @@ const sendAlertsToSlack = (webhookUrl, alerts) => __awaiter(void 0, void 0, void
         icon_url: constants_1.ACTION_ICON,
         username: constants_1.ACTION_SHORT_SUMMARY,
     });
+    console.log('Alert sent to Slack');
 });
 exports.sendAlertsToSlack = sendAlertsToSlack;
 
@@ -505,11 +506,13 @@ const buildAlerts = (targetSeverity, githubAlerts) => {
     for (const alert of githubAlerts) {
         if (alert && alert.node) {
             const alertSeverity = (_a = alert.node.securityVulnerability) === null || _a === void 0 ? void 0 : _a.severity;
-            if (targetSeverity.length === 0 || (alertSeverity && targetSeverity.includes(alertSeverity))) {
+            if (targetSeverity.length === 0
+                || (alertSeverity && targetSeverity.includes(alertSeverity))) {
                 alerts.push((0, entities_1.toAlert)(alert.node));
             }
         }
     }
+    console.log(`Captured ${alerts.length} Dependabot alert(s)`);
     return alerts;
 };
 exports.buildAlerts = buildAlerts;
